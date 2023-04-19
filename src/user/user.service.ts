@@ -52,8 +52,14 @@ export class UserService extends TypeOrmCrudService<User> {
     return Math.floor(BMR * activityK);
   }
 
-  async calculateMacronutrientRatios({ id, aim, weeks }): Promise<any> {
-    const user = await this.repository.findOne({ where: { id }});
+  async calculateMacronutrientRatios({ id, aim, weeks, idealWeight }): Promise<{
+    protein: number;
+    fats: number;
+    carbohydrates: number;
+    calories: number;
+    warning: string | null;
+    }> {
+    let user = await this.repository.findOne({ where: { id }});
     if (!user) {
       throw new NotFoundException('User does not exist');
     }
@@ -62,21 +68,22 @@ export class UserService extends TypeOrmCrudService<User> {
       throw new BadRequestException('No enough data');
     }
 
-    const AMR = this.calculateAMR(gender, weight, height, age, activity);
-    if(!Aim[aim.toUpperCase()] || !weeks) {
-      return {
-        protein: (0.3 * AMR) / 4,
-        fats: (0.3 * AMR) / 9,
-        carbohydrates: (0.4 * AMR) / 4,
-        calories: AMR
-      }
+    let AMR = this.calculateAMR(gender, weight, height, age, activity);
+    if (Aim[aim.toUpperCase()] && weeks && idealWeight) {
+      AMR -= (weight - idealWeight) * 7700 / (weeks * 7);
+    }
+    const protein = Math.floor((0.3 * AMR) / 4);
+    const fats = Math.floor((0.3 * AMR) / 9);
+    const carbohydrates = Math.floor((0.4 * AMR) / 4);
+    let warning = null;
+
+    if (AMR < 1000) {
+      warning = 'We don`t recommend you lose weight so quick'
     }
 
-    return {
-      protein: 1,
-      fats: 1,
-      carbohydrates: 1,
-      calories: AMR
-    }
+    user = {...user, protein, fats, carbohydrates, calories: AMR }
+    await this.repository.save(user);
+
+    return { protein, fats, carbohydrates, calories: AMR, warning }
   }
 }

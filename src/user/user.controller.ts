@@ -16,8 +16,15 @@ export class UserController {
     async getMacronutrientRatios(
       @Query('id') id: string,
       @Query('aim') aim: string,
-      @Query('weeks') weeks: string
-      ): Promise<number> {
-      return this.service.calculateMacronutrientRatios({ id: +id, aim, weeks });
+      @Query('weeks') weeks: string,
+      @Query('idealWeight') idealWeight: string
+      ): Promise<{
+        protein: number;
+        fats: number;
+        carbohydrates: number;
+        calories: number;
+        warning: string | null;
+      }> {
+      return this.service.calculateMacronutrientRatios({ id: +id, aim, weeks, idealWeight });
     }
 }
