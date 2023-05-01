@@ -52,6 +52,9 @@ export class User {
   @Column({ nullable: true })
   carbohydrates: number;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

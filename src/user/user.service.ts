@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Gender } from './enum/gender.enum';
 import { UpdateMeasurementsDTO } from './dto/updateMeasurements.dto';
 import { Aim } from './enum/aim.enum';
+import { CreateUserDTO } from './dto/createUser.dto';
 
 @Injectable()
 export class UserService extends TypeOrmCrudService<User> {
@@ -14,6 +15,30 @@ export class UserService extends TypeOrmCrudService<User> {
     private repository: Repository<User>
   ) {
     super(repository);
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    return this.repository.findOne({ where: { email } });
+  }
+
+  async findById(id: number): Promise<User> {
+    return this.repository.findOne({ where: { id } });
+  }
+
+  async getUserWithPassword(email: string): Promise<User> {
+    return this.repository
+      .createQueryBuilder('user')
+      .where(`user.email = :email`, { email })
+      .addSelect('user.password')
+      .getOne();
+  }
+
+  async create(createUserDto: CreateUserDTO): Promise <User> {
+    return this.repository.save(createUserDto);
+  }
+
+  async updateRefreshToken(id: number, refreshToken: string): Promise<void> {
+    await this.repository.update(id, { refreshToken });
   }
 
   async updateMeasurements({ id, gender, weight, height, age, activity }: UpdateMeasurementsDTO): Promise<User> {
