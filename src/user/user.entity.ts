@@ -1,6 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Min, Max } from 'class-validator';
 import { Gender } from './enum/gender.enum';
+import { Product } from '../product/product.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -22,7 +30,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: Gender,
-    nullable: true
+    nullable: true,
   })
   gender: Gender;
 
@@ -54,6 +62,9 @@ export class User {
 
   @Column({ nullable: true })
   refreshToken: string;
+
+  @OneToMany(() => Product, (product) => product.creator)
+  products: Product[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
