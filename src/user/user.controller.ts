@@ -1,20 +1,23 @@
-import { Controller, Get, Body, Patch, Query } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Query, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateMeasurementsDTO } from './dto/updateMeasurements.dto';
 import { User } from './user.entity';
+import { AccessTokenGuard } from '../auth/guards/accessToken.guard';
 
 @Controller('user')
 export class UserController {
     constructor(public service: UserService) {}
 
+    @UseGuards(AccessTokenGuard)
     @Patch('/update-measurements')
-    async updateMeasurements(@Body() updateMeasurementsDTO: UpdateMeasurementsDTO): Promise<User> {
-      return this.service.updateMeasurements(updateMeasurementsDTO);
+    async updateMeasurements(@Req() req, @Body() updateMeasurementsDTO: UpdateMeasurementsDTO): Promise<User> {
+      return this.service.updateMeasurements(+req.user['sub'], updateMeasurementsDTO);
     }
 
+    @UseGuards(AccessTokenGuard)
     @Get('/macronutrient-ratios')
     async getMacronutrientRatios(
-      @Query('id') id: string,
+      @Req() req,
       @Query('aim') aim: string,
       @Query('weeks') weeks: string,
       @Query('idealWeight') idealWeight: string
@@ -25,6 +28,6 @@ export class UserController {
         calories: number;
         warning: string | null;
       }> {
-      return this.service.calculateMacronutrientRatios({ id: +id, aim, weeks, idealWeight });
+      return this.service.calculateMacronutrientRatios({ id: +req.user['sub'], aim, weeks, idealWeight });
     }
 }

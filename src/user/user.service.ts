@@ -41,7 +41,7 @@ export class UserService extends TypeOrmCrudService<User> {
     await this.repository.update(id, { refreshToken });
   }
 
-  async updateMeasurements({ id, gender, weight, height, age, activity }: UpdateMeasurementsDTO): Promise<User> {
+  async updateMeasurements(id: number, { gender, weight, height, age, activity }: UpdateMeasurementsDTO): Promise<User> {
     const user = await this.repository.findOne({ where: { id }});
     if (!user) {
       throw new NotFoundException('User does not exist');
