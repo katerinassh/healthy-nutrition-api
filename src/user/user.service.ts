@@ -7,10 +7,11 @@ import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Gender } from './enum/gender.enum';
+import { GenderEnum } from './enum/gender.enum';
 import { UpdateMeasurementsDTO } from './dto/updateMeasurements.dto';
-import { Aim } from './enum/aim.enum';
-import { CreateUserDTO } from './dto/createUser.dto';
+import { AimEnum } from './enum/aim.enum';
+import { CreateCustomerDTO } from './dto/createCustomer.dto';
+import { RolesEnum } from './enum/roles.enum';
 
 @Injectable()
 export class UserService extends TypeOrmCrudService<User> {
@@ -21,11 +22,11 @@ export class UserService extends TypeOrmCrudService<User> {
     super(repository);
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async getByEmail(email: string): Promise<User> {
     return this.repository.findOne({ where: { email } });
   }
 
-  async findById(id: number): Promise<User> {
+  async getById(id: number): Promise<User> {
     return this.repository.findOne({ where: { id } });
   }
 
@@ -37,8 +38,8 @@ export class UserService extends TypeOrmCrudService<User> {
       .getOne();
   }
 
-  async create(createUserDto: CreateUserDTO): Promise<User> {
-    return this.repository.save(createUserDto);
+  async createCustomer(createCustomerDto: CreateCustomerDTO): Promise<User> {
+    return this.repository.save({ ...createCustomerDto, role: RolesEnum.Customer });
   }
 
   async updateRefreshToken(id: number, refreshToken: string): Promise<void> {
@@ -63,13 +64,13 @@ export class UserService extends TypeOrmCrudService<User> {
   }
 
   calculateAMR(
-    gender: Gender,
+    gender: GenderEnum,
     weight: number,
     height: number,
     age: number,
     activity: number,
   ): number {
-    const genderK = gender === Gender.MALE ? 5 : -161;
+    const genderK = gender === GenderEnum.MALE ? 5 : -161;
     let activityK: number;
     switch (activity) {
       case 1:
@@ -107,7 +108,7 @@ export class UserService extends TypeOrmCrudService<User> {
     }
 
     let AMR = this.calculateAMR(gender, weight, height, age, activity);
-    if (Aim[aim.toUpperCase()] && weeks && idealWeight) {
+    if (AimEnum[aim.toUpperCase()] && weeks && idealWeight) {
       AMR -= ((weight - idealWeight) * 7700) / (weeks * 7);
     }
     const protein = Math.floor((0.3 * AMR) / 4);

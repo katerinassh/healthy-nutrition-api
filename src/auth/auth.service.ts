@@ -7,9 +7,10 @@ import {
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CreateUserDTO } from '../user/dto/createUser.dto';
+import { CreateCustomerDTO } from '../user/dto/createCustomer.dto';
 import { SignInDTO } from './dto/signIn.dto';
 import { User } from '../user/user.entity';
+import { JwtSignatureDTO } from './dto/jwtSignature.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,22 +20,22 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signUp(
-    createUserDto: CreateUserDTO,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.userService.findByEmail(createUserDto.email);
+  async customerSignUp(
+    createCustomerDto: CreateCustomerDTO,
+  ): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+    const user = await this.userService.getByEmail(createCustomerDto.email);
     if (user)
       throw new BadRequestException('User with such email already exists');
 
-    const hashedPassword = await AuthService.hashData(createUserDto.password);
-    const { id, email } = await this.userService.create({
-      ...createUserDto,
+    const hashedPassword = await AuthService.hashData(createCustomerDto.password);
+    const newUser = await this.userService.createCustomer({
+      ...createCustomerDto,
       password: hashedPassword,
     });
 
-    const tokens = await this.getTokens(id, email);
-    await this.updateRefreshToken(id, tokens.refreshToken);
-    return tokens;
+    const tokens = await this.getTokens(newUser.id);
+    await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+    return {...tokens, user: newUser};
   }
 
   async signIn({
@@ -43,7 +44,7 @@ export class AuthService {
   }: SignInDTO): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.validateUser({ email, password });
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -54,34 +55,32 @@ export class AuthService {
 
   async getTokens(
     userId: number,
-    email: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
+    const userJWTSignature = await this.getUserJWTSignature(userId);
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        {
-          sub: userId,
-          email,
-        },
-        {
-          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-          expiresIn: '15m',
-        },
-      ),
-      this.jwtService.signAsync(
-        {
-          sub: userId,
-          email,
-        },
-        {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-          expiresIn: '7d',
-        },
-      ),
+      this.jwtService.signAsync(userJWTSignature, {
+        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+        expiresIn: process.env.JWT_ACCESS_LIFETIME,
+      }),
+      this.jwtService.signAsync(userJWTSignature, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: process.env.JWT_REFRESH_LIFETIME,
+      }),
     ]);
 
     return {
       accessToken,
       refreshToken,
+    };
+  }
+
+  async getUserJWTSignature(userId: number): Promise<JwtSignatureDTO> {
+    const user = await this.userService.getById(userId);
+
+    return {
+      id: userId,
+      email: user.email,
+      role: user.role,
     };
   }
 
@@ -92,13 +91,13 @@ export class AuthService {
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
-    const user = await this.userService.findById(userId);
+    const user = await this.userService.getById(userId);
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access denied');
     const isMatched = await bcrypt.compare(refreshToken, user.refreshToken);
     if (!isMatched) throw new ForbiddenException('Access denied');
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }

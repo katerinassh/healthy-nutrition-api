@@ -3,7 +3,10 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class InsertProducts1682954735446 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TYPE "public"."category_type_enum" AS ENUM('Cheese', 'Fruits', 'Sandwiches & Burgers', 'Eggs', 'Meat');`,
+      `DROP TYPE IF EXISTS public.category_type_enum;
+        CREATE TYPE public.category_type_enum AS ENUM (
+          'Cheese', 'Fruits', 'Sandwiches & Burgers', 'Eggs', 'Meat'
+        );`,
     );
     await queryRunner.query(
       `CREATE TABLE IF NOT EXISTS products (
@@ -16,6 +19,7 @@ export class InsertProducts1682954735446 implements MigrationInterface {
           protein float NOT NULL,
           vitamins json,
           contains_trans_fat boolean NOT NULL DEFAULT false,
+          in_use boolean NOT NULL DEFAULT false,
           category "public"."category_type_enum" NOT NULL,
           brand varchar(50),
           "creatorId" int,
@@ -43,6 +47,6 @@ export class InsertProducts1682954735446 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP TABLE products;`);
-    await queryRunner.query(`DROP TYPE "public"."category_type_enum";`);
+    await queryRunner.query(`DROP TYPE public.category_type_enum;`);
   }
 }

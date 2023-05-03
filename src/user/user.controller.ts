@@ -23,7 +23,7 @@ export class UserController {
     @Body() updateMeasurementsDTO: UpdateMeasurementsDTO,
   ): Promise<User> {
     return this.service.updateMeasurements(
-      +req.user['sub'],
+      +req.user['id'],
       updateMeasurementsDTO,
     );
   }
@@ -43,7 +43,7 @@ export class UserController {
     warning: string | null;
   }> {
     return this.service.calculateMacronutrientRatios({
-      id: +req.user['sub'],
+      id: +req.user['id'],
       aim,
       weeks,
       idealWeight,

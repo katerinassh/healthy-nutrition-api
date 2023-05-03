@@ -1,9 +1,9 @@
-import { Aim } from '../enum/aim.enum';
+import { AimEnum } from '../enum/aim.enum';
 
 export class CalculateCaloriesPerDayDTO {
   id: number;
 
-  aim: Aim;
+  aim: AimEnum;
 
   weeks: number | null;
 }

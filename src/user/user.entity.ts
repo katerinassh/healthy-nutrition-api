@@ -7,8 +7,9 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Min, Max } from 'class-validator';
-import { Gender } from './enum/gender.enum';
+import { GenderEnum } from './enum/gender.enum';
 import { Product } from '../product/product.entity';
+import { RolesEnum } from './enum/roles.enum';
 
 @Entity({ name: 'users' })
 export class User {
@@ -29,10 +30,10 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: Gender,
+    enum: GenderEnum,
     nullable: true,
   })
-  gender: Gender;
+  gender: GenderEnum;
 
   @Column({ nullable: true })
   age: number;
@@ -62,6 +63,9 @@ export class User {
 
   @Column({ nullable: true })
   refreshToken: string;
+
+  @Column({ type: 'enum', enum: RolesEnum, nullable: false })
+  role: RolesEnum;
 
   @OneToMany(() => Product, (product) => product.creator)
   products: Product[];

@@ -1,8 +1,8 @@
 import { Min, Max } from 'class-validator';
-import { Gender } from '../enum/gender.enum';
+import { GenderEnum } from '../enum/gender.enum';
 
 export class UpdateMeasurementsDTO {
-  gender: Gender;
+  gender: GenderEnum;
 
   weight: number;
 

@@ -8,45 +8,48 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Category } from './enum/category.enum';
+import { CategoryEnum } from './enum/category.enum';
 
 @Entity({ name: 'products' })
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
   @Column({ default: true })
   approved: boolean;
 
-  @Column()
+  @Column({ nullable: false, type: 'float', default: 0.0 })
   calories: number;
 
-  @Column()
+  @Column({ nullable: false, type: 'float', default: 0.0 })
   fats: number;
 
-  @Column()
+  @Column({ nullable: false, type: 'float', default: 0.0 })
   carbohydrates: number;
 
-  @Column()
+  @Column({ nullable: false, type: 'float', default: 0.0 })
   protein: number;
 
   @Column('jsonb', { nullable: false, default: {} })
-  vitamins: string;
+  vitamins: JSON;
 
   @Column({ name: 'contains_trans_fat', default: false })
   containsTransFat: boolean;
 
   @Column({
     type: 'enum',
-    enum: Category,
+    enum: CategoryEnum,
   })
-  category: string;
+  category: CategoryEnum;
 
-  @Column()
-  brand?: string;
+  @Column({ nullable: true })
+  brand: string;
+
+  @Column({ name: 'in_use', default: false })
+  inUse: boolean;
 
   @ManyToOne(() => User, (user: User) => user.products)
   @JoinColumn()
