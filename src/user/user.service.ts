@@ -12,6 +12,7 @@ import { UpdateMeasurementsDTO } from './dto/updateMeasurements.dto';
 import { AimEnum } from './enum/aim.enum';
 import { CreateCustomerDTO } from './dto/createCustomer.dto';
 import { RolesEnum } from './enum/roles.enum';
+import { UpdateUserDTO } from './dto/updateUser.dto';
 
 @Injectable()
 export class UserService extends TypeOrmCrudService<User> {
@@ -39,11 +40,35 @@ export class UserService extends TypeOrmCrudService<User> {
   }
 
   async createCustomer(createCustomerDto: CreateCustomerDTO): Promise<User> {
-    return this.repository.save({ ...createCustomerDto, role: RolesEnum.Customer });
+    return this.repository.save({
+      ...createCustomerDto,
+      role: RolesEnum.Customer,
+    });
+  }
+
+  async createBlankAdmin(email: string): Promise<User> {
+    return this.repository.save({
+      email,
+      password: 'blank',
+      firstName: 'blank',
+      lastName: 'blank',
+      role: RolesEnum.Admin,
+    });
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.repository.delete(id);
   }
 
   async updateRefreshToken(id: number, refreshToken: string): Promise<void> {
     await this.repository.update(id, { refreshToken });
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDTO): Promise<User> {
+    const user = await this.repository.findOne({ where: { id } });
+    if (!user) throw new BadRequestException('User not found');
+
+    return this.repository.save({ ...user, ...updateUserDto });
   }
 
   async updateMeasurements(
