@@ -10,6 +10,7 @@ import { Min, Max } from 'class-validator';
 import { GenderEnum } from './enum/gender.enum';
 import { Product } from '../product/product.entity';
 import { RolesEnum } from './enum/roles.enum';
+import { Meal } from '../meal/meal.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -69,6 +70,9 @@ export class User {
 
   @OneToMany(() => Product, (product) => product.creator)
   products: Product[];
+
+  @OneToMany(() => Meal, (meal) => meal.user)
+  meals: Meal[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

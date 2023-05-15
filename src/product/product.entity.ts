@@ -7,7 +7,9 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
+import { ConfiguredProduct } from './configuredProduct.entity';
 import { CategoryEnum } from './enum/category.enum';
 
 @Entity({ name: 'products' })
@@ -54,6 +56,9 @@ export class Product {
   @ManyToOne(() => User, (user: User) => user.products)
   @JoinColumn()
   creator: User;
+
+  @OneToMany(() => ConfiguredProduct, (cp: ConfiguredProduct) => cp.product)
+  configurations: ConfiguredProduct;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
