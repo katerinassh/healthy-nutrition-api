@@ -163,4 +163,14 @@ export class AuthService {
 
     return hashedData;
   }
+
+  async getUserDataFromSocials(
+    email: string,
+  ): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+    const user = await this.userService.getByEmail(email);
+    if (!user) throw new BadRequestException(`User not found`);
+
+    const tokens = await this.getTokens(user.id);
+    return { ...tokens, user };
+  }
 }

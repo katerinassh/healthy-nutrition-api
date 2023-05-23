@@ -26,7 +26,9 @@ import {
   ApiForbiddenResponse,
   ApiNotAcceptableResponse,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { GoogleOauthGuard } from './guards/google-oath.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -85,6 +87,7 @@ export class AuthController {
   @Roles(RolesEnum.Admin)
   @UseGuards(AccessTokenGuard)
   @Post('invite-admin')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Send email invitation to a new admin' })
   @ApiOkResponse({ description: 'Email is sent, blank admin is created' })
   @ApiBadRequestResponse({
@@ -96,6 +99,7 @@ export class AuthController {
   }
 
   @Patch('complete-registration')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Complete admin registration with link from the email',
   })
@@ -112,5 +116,26 @@ export class AuthController {
     @Body() completeRegistrationDto: CompleteRegistrationDTO,
   ): Promise<User> {
     return this.service.completeRegistration(token, completeRegistrationDto);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOauthGuard)
+  @ApiOperation({ summary: 'Login with Google' })
+  @ApiOkResponse({ description: 'Redirected to google auth' })
+  async googleAuth(): Promise<boolean> {
+    return true;
+  }
+
+  @Get('google/redirect')
+  @UseGuards(GoogleOauthGuard)
+  @ApiOperation({ summary: 'Login with Google, automatic redirection' })
+  @ApiOkResponse({ description: 'User logged in with Google' })
+  @ApiBadRequestResponse({
+    description: 'User with such Google profile is not registrated',
+  })
+  async googleAuthRedirect(
+    @Req() req,
+  ): Promise<{ accessToken: string; refreshToken: string; user: User }> {
+    return this.service.getUserDataFromSocials(req.user.email);
   }
 }
