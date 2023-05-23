@@ -133,6 +133,8 @@ export class UserService extends TypeOrmCrudService<User> {
     }
 
     let AMR = this.calculateAMR(gender, weight, height, age, activity);
+
+    if (!aim) aim = AimEnum.STAY;
     if (AimEnum[aim.toUpperCase()] && weeks && idealWeight) {
       AMR -= ((weight - idealWeight) * 7700) / (weeks * 7);
     }

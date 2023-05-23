@@ -1,15 +1,23 @@
-import { ApiProperty } from '@nestjsx/crud/lib/crud';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
 export class CompleteRegistrationDTO {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User first name',
+    nullable: false,
+    type: 'string',
+  })
   @IsString()
   firstName: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: 'User last name',
+    nullable: false,
+    type: 'string',
+  })
   @IsString()
   lastName: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'User email', nullable: false, type: 'string' })
   password: string;
 }
