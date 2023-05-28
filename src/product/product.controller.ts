@@ -11,8 +11,8 @@ import {
   Patch,
 } from '@nestjs/common';
 import { CreateProductDTO } from './dto/createProduct.dto';
-import { Product } from './product.entity';
-import { ProductService } from './product.service';
+import { Product } from './entities/product.entity';
+import { ProductService } from './services/product.service';
 import { AccessTokenGuard } from '../auth/guards/accessToken.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';

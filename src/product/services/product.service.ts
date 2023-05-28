@@ -1,20 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
-import { Product } from './product.entity';
+import { Product } from '../entities/product.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateProductDTO } from './dto/createProduct.dto';
-import { UserService } from '../user/user.service';
-import { CategoryEnum } from './enum/category.enum';
+import { CreateProductDTO } from '../dto/createProduct.dto';
+import { UserService } from '../../user/user.service';
+import { CategoryEnum } from '../enum/category.enum';
 
 @Injectable()
 export class ProductService extends TypeOrmCrudService<Product> {
   constructor(
     @InjectRepository(Product)
-    private repository: Repository<Product>,
+    private productRepository: Repository<Product>,
     private userService: UserService,
   ) {
-    super(repository);
+    super(productRepository);
   }
 
   async create(userId: number, payload: CreateProductDTO): Promise<Product> {
@@ -32,11 +32,11 @@ export class ProductService extends TypeOrmCrudService<Product> {
       payload.creator = creator;
     }
 
-    return this.repository.save(payload);
+    return this.productRepository.save(payload);
   }
 
   async remove(id: number) {
-    return this.repository.delete(id);
+    return this.productRepository.delete(id);
   }
 
   async approve(id: number): Promise<Product> {
@@ -44,14 +44,14 @@ export class ProductService extends TypeOrmCrudService<Product> {
     if (!product)
       throw new BadRequestException('Product with such id do not exist');
     product.approved = true;
-    return this.repository.save(product);
+    return this.productRepository.save(product);
   }
 
   async exists(name: string): Promise<boolean> {
-    return this.repository.exist({ where: { name } });
+    return this.productRepository.exist({ where: { name } });
   }
 
   async getProductById(id: number): Promise<Product> {
-    return this.repository.findOne({ where: { id } });
+    return this.productRepository.findOne({ where: { id } });
   }
 }

@@ -10,7 +10,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ConfiguredProduct } from './configuredProduct.entity';
-import { CategoryEnum } from './enum/category.enum';
+import { CategoryEnum } from '../enum/category.enum';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -57,8 +57,11 @@ export class Product {
   @JoinColumn()
   creator: User;
 
-  @OneToMany(() => ConfiguredProduct, (cp: ConfiguredProduct) => cp.product)
-  configurations: ConfiguredProduct;
+  @OneToMany(
+    () => ConfiguredProduct,
+    (configuredProduct) => configuredProduct.product,
+  )
+  configurations: ConfiguredProduct[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

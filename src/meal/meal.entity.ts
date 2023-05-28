@@ -6,10 +6,11 @@ import {
   UpdateDateColumn,
   JoinColumn,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from '../user/user.entity';
-import { ConfiguredProduct } from '../product/configuredProduct.entity';
-import { IsOptional } from 'class-validator';
+import { ConfiguredProduct } from '../product/entities/configuredProduct.entity';
 
 @Entity({ name: 'meals' })
 export class Meal {
@@ -20,9 +21,24 @@ export class Meal {
   @JoinColumn()
   user: User;
 
-  @IsOptional()
-  @Column('int', { array: true })
+  @ManyToMany(
+    () => ConfiguredProduct,
+    (configuredProduct) => configuredProduct.meals,
+  )
+  @JoinTable()
   configuredProducts: ConfiguredProduct[];
+
+  @Column({ nullable: false, type: 'float', default: 0.0 })
+  totalCalories: number;
+
+  @Column({ nullable: false, type: 'float', default: 0.0 })
+  totalFats: number;
+
+  @Column({ nullable: false, type: 'float', default: 0.0 })
+  totalCarbohydrates: number;
+
+  @Column({ nullable: false, type: 'float', default: 0.0 })
+  totalProtein: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

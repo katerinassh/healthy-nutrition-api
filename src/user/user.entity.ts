@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Min, Max } from 'class-validator';
 import { GenderEnum } from './enum/gender.enum';
-import { Product } from '../product/product.entity';
+import { Product } from '../product/entities/product.entity';
 import { RolesEnum } from './enum/roles.enum';
 import { Meal } from '../meal/meal.entity';
 

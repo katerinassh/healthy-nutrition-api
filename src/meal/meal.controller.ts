@@ -5,6 +5,8 @@ import {
   UseGuards,
   Put,
   Get,
+  Req,
+  Body,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../auth/guards/accessToken.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -12,6 +14,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { RolesEnum } from '../user/enum/roles.enum';
 import { MealService } from './meal.service';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Meal } from './meal.entity';
+import { UpdateMealWithProductsDTO } from './dto/updateMealWithProducts.dto';
 
 @ApiTags('Meal')
 @ApiBearerAuth()
@@ -20,18 +24,23 @@ export class MealController {
   constructor(public service: MealService) {}
 
   @Roles(RolesEnum.Customer)
-  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UseGuards(AccessTokenGuard)
   @Post('/create')
   @HttpCode(201)
-  async create(): Promise<void> {
-    return;
+  async create(@Req() req): Promise<Meal> {
+    return this.service.create(+req.user['id']);
   }
 
-  @Roles(RolesEnum.Customer)
-  @UseGuards(AccessTokenGuard, RolesGuard)
-  @Put('/update')
-  async update(): Promise<void> {
-    return;
+  @UseGuards(AccessTokenGuard)
+  @Put('/update-products')
+  async updateProducts(
+    @Req() req,
+    @Body() updateMealWithProductsDto: UpdateMealWithProductsDTO,
+  ): Promise<Meal> {
+    return this.service.updateProducts(
+      +req.user['id'],
+      updateMealWithProductsDto,
+    );
   }
 
   @Roles(RolesEnum.Customer)

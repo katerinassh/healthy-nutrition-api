@@ -4,9 +4,11 @@ import {
   JoinColumn,
   ManyToOne,
   Column,
+  ManyToMany,
 } from 'typeorm';
 import { Min } from 'class-validator';
-import { Product } from '../product/product.entity';
+import { Product } from './product.entity';
+import { Meal } from 'src/meal/meal.entity';
 
 @Entity('configured_products')
 export class ConfiguredProduct {
@@ -17,7 +19,10 @@ export class ConfiguredProduct {
   @Column()
   quantity: number;
 
-  @ManyToOne(() => Product, (product: Product) => product.configurations)
+  @ManyToOne(() => Product, (product) => product.configurations)
   @JoinColumn()
   product: Product;
+
+  @ManyToMany(() => Meal, (meal) => meal.configuredProducts)
+  meals: Meal[];
 }
