@@ -10,7 +10,6 @@ import { Meal } from './meal.entity';
 import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { UpdateMealWithProductsDTO } from './dto/updateMealWithProducts.dto';
-import { RolesEnum } from '../user/enum/roles.enum';
 import { ConfiguredProductService } from '../product/services/configuredProduct.service';
 import { ConfiguredProduct } from '../product/entities/configuredProduct.entity';
 import { InfoForDayDTO } from './dto/infoForDay.dto';
@@ -69,7 +68,7 @@ export class MealService extends TypeOrmCrudService<Meal> {
     if (!meal) throw new BadRequestException('Invalid meal id');
 
     const user = await this.userService.getById(userId);
-    if (!user || (meal.user.id !== userId && user.role !== RolesEnum.Admin)) {
+    if (!user || meal.user.id !== userId) {
       throw new ForbiddenException(
         'User doesn`t have access to update this meal',
       );
@@ -118,7 +117,7 @@ export class MealService extends TypeOrmCrudService<Meal> {
       totalCarbohydratesConsumed: 0,
       totalProteinConsumed: 0,
     };
-    meals.forEach(meal => {
+    meals.forEach((meal) => {
       totalsConsumed.totalCaloriesConsumed += meal.totalCalories;
       totalsConsumed.totalFatsConsumed += meal.totalFats;
       totalsConsumed.totalCarbohydratesConsumed += meal.totalCarbohydrates;
@@ -128,7 +127,12 @@ export class MealService extends TypeOrmCrudService<Meal> {
     return this.toInfoForDay(day, meals, user, totalsConsumed);
   }
 
-  toInfoForDay(day: string, meals: Meal[], user: User, totalsConsumed): InfoForDayDTO {
+  toInfoForDay(
+    day: string,
+    meals: Meal[],
+    user: User,
+    totalsConsumed,
+  ): InfoForDayDTO {
     return {
       ...totalsConsumed,
       date: moment(day).format('YYYY-MM-DD'),
@@ -136,7 +140,7 @@ export class MealService extends TypeOrmCrudService<Meal> {
       totalFatsForDay: user.fats,
       totalCarbohydratesForDay: user.carbohydrates,
       totalProteinForDay: user.protein,
-      meals
-    }
+      meals,
+    };
   }
 }
