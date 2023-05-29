@@ -7,6 +7,7 @@ import {
   Get,
   Req,
   Body,
+  Query,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../auth/guards/accessToken.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -16,6 +17,7 @@ import { MealService } from './meal.service';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Meal } from './meal.entity';
 import { UpdateMealWithProductsDTO } from './dto/updateMealWithProducts.dto';
+import { InfoForDayDTO } from './dto/infoForDay.dto';
 
 @ApiTags('Meal')
 @ApiBearerAuth()
@@ -44,9 +46,12 @@ export class MealController {
   }
 
   @Roles(RolesEnum.Customer)
-  @UseGuards(AccessTokenGuard, RolesGuard)
+  @UseGuards(AccessTokenGuard)
   @Get('/get-for-day')
-  async getForDay(): Promise<void> {
-    return;
+  async getForDay(
+    @Req() req,
+    @Query('day') day: string
+  ): Promise<InfoForDayDTO> {
+    return this.service.getForDay(+req.user['id'], day);
   }
 }

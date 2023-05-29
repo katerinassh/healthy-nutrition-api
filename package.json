@@ -39,6 +39,7 @@
     "class-validator": "^0.14.0",
     "express-rate-limit": "^6.7.0",
     "handlebars": "^4.7.7",
+    "moment": "^2.29.4",
     "nodemailer": "^6.9.2",
     "passport": "^0.6.0",
     "passport-google-oauth20": "^2.0.0",

@@ -7,11 +7,14 @@ import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Meal } from './meal.entity';
+import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { UpdateMealWithProductsDTO } from './dto/updateMealWithProducts.dto';
 import { RolesEnum } from '../user/enum/roles.enum';
 import { ConfiguredProductService } from '../product/services/configuredProduct.service';
 import { ConfiguredProduct } from '../product/entities/configuredProduct.entity';
+import { InfoForDayDTO } from './dto/infoForDay.dto';
+import * as moment from 'moment';
 
 @Injectable()
 export class MealService extends TypeOrmCrudService<Meal> {
@@ -94,5 +97,46 @@ export class MealService extends TypeOrmCrudService<Meal> {
         id: meal.id,
       })
       .getOne();
+  }
+
+  async getForDay(userId: number, day: string): Promise<InfoForDayDTO> {
+    const user = await this.userService.getById(userId);
+
+    const nextDay = moment(day).add(1, 'd').utcOffset(0, true).toISOString();
+    const meals = await this.repository
+      .createQueryBuilder('meal')
+      .where('meal.userId = :userId', { userId })
+      .andWhere('meal.created_at >= :day', { day: `%${day}%` })
+      .andWhere('meal.created_at < :nextDay', { nextDay: `%${nextDay}%` })
+      .leftJoinAndSelect('meal.configuredProducts', 'configuredProducts')
+      .leftJoinAndSelect('configuredProducts.product', 'product')
+      .getMany();
+
+    const totalsConsumed = {
+      totalCaloriesConsumed: 0,
+      totalFatsConsumed: 0,
+      totalCarbohydratesConsumed: 0,
+      totalProteinConsumed: 0,
+    };
+    meals.forEach(meal => {
+      totalsConsumed.totalCaloriesConsumed += meal.totalCalories;
+      totalsConsumed.totalFatsConsumed += meal.totalFats;
+      totalsConsumed.totalCarbohydratesConsumed += meal.totalCarbohydrates;
+      totalsConsumed.totalProteinConsumed += meal.totalProtein;
+    });
+
+    return this.toInfoForDay(day, meals, user, totalsConsumed);
+  }
+
+  toInfoForDay(day: string, meals: Meal[], user: User, totalsConsumed): InfoForDayDTO {
+    return {
+      ...totalsConsumed,
+      date: moment(day).format('YYYY-MM-DD'),
+      totalCaloriesForDay: user.calories,
+      totalFatsForDay: user.fats,
+      totalCarbohydratesForDay: user.carbohydrates,
+      totalProteinForDay: user.protein,
+      meals
+    }
   }
 }
