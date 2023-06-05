@@ -9,6 +9,10 @@ import {
   Param,
   BadRequestException,
   Patch,
+  NotFoundException,
+  Get,
+  ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { CreateProductDTO } from './dto/createProduct.dto';
 import { Product } from './entities/product.entity';
@@ -26,6 +30,7 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { SortEnum } from './enum/sort.enum';
 
 @ApiTags('Product')
 @ApiBearerAuth()
@@ -81,5 +86,35 @@ export class ProductController {
   async approve(@Param('productId') productId: string) {
     if (!productId) throw new BadRequestException('Invalid product id');
     return this.service.approve(+productId);
+  }
+
+  @Get('get-products-list')
+  async getProductsList(
+    @Req() req,
+    @Query('productsForPage', ParseIntPipe) productsForPage: number,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('sortBy') sortBy?: SortEnum,
+    @Query('search') search?: string,
+  ): Promise<{
+    productList: Product[];
+    total: number;
+    page: number;
+    productsForPage: number;
+  }> {
+    let userId;
+    if (req.user) userId = +req.user['id'];
+    try {
+      const { productList, total } = await this.service.getProductsList({
+        productsForPage,
+        page,
+        sortBy,
+        search,
+        userId,
+      });
+
+      return { productList, total, page, productsForPage };
+    } catch (err) {
+      throw new NotFoundException(err.message);
+    }
   }
 }

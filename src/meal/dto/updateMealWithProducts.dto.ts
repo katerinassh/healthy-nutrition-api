@@ -9,5 +9,10 @@ export class UpdateMealWithProductsDTO {
   })
   mealId: number;
 
+  @ApiProperty({
+    description: 'Array of new adding products',
+    nullable: false,
+    type: ConfiguredProductDTO,
+  })
   configuredProducts: ConfiguredProductDTO[];
 }

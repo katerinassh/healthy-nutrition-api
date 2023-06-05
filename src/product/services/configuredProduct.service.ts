@@ -34,6 +34,7 @@ export class ConfiguredProductService extends TypeOrmCrudService<ConfiguredProdu
       ...configuredProductDto,
       product,
     });
+    await this.productService.makeInUse(productId);
     return this.configuredProductRepository.findOne({
       relations: {
         product: true,
@@ -52,7 +53,7 @@ export class ConfiguredProductService extends TypeOrmCrudService<ConfiguredProdu
       },
       where: { quantity: configuredProductDto.quantity },
     });
-    if (configuredProduct.product.id === product.id) {
+    if (configuredProduct && configuredProduct.product.id === product.id) {
       return configuredProduct;
     }
     return null;
