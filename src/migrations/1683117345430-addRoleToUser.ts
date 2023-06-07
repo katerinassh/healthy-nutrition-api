@@ -7,7 +7,8 @@ export class AddRoleToUser1683117345430 implements MigrationInterface {
         CREATE TYPE public.roles_type_enum AS ENUM ('admin', 'customer');`,
     );
     await queryRunner.query(
-      'ALTER TABLE users ADD COLUMN role public.roles_type_enum;',
+      `ALTER TABLE users DROP COLUMN IF EXISTS role;
+      ALTER TABLE users ADD COLUMN role public.roles_type_enum;`,
     );
   }
 

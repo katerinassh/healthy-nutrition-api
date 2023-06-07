@@ -24,10 +24,9 @@ export class InsertProducts1682954735446 implements MigrationInterface {
           brand varchar(50),
           "creatorId" int,
           created_at TIMESTAMP NOT NULL DEFAULT now(),
-          updated_at TIMESTAMP NOT NULL DEFAULT now(),
-          FOREIGN KEY ("creatorId")
-          REFERENCES users (id)
+          updated_at TIMESTAMP NOT NULL DEFAULT now()
         );
+        ALTER TABLE products ADD CONSTRAINT "FK_692a909ee0fa9383e7859f9b406" FOREIGN KEY ("creatorId") REFERENCES users (id) ON DELETE NO ACTION ON UPDATE NO ACTION;
         INSERT INTO products(name, calories, fats, carbohydrates, protein, vitamins, contains_trans_fat, category, brand)
         VALUES('Big Mac Burger', 550, 30, 45, 25, '{"calcium": 100, "potassium": 44, "iron": 5}', true, 'Sandwiches & Burgers', 'McDonalds');
 

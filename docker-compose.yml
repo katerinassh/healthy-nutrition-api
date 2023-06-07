@@ -17,16 +17,13 @@ services:
     restart: on-failure
     env_file: .env
     environment:
-      - POSTGRES_HOST=localhost
+      - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=qoadmin
       - POSTGRES_DB=healthy-nutrition-db
     ports:
-      - "27017:27017"
-    volumes:
-      - .:/home/node/app
-      - /app/node_modules/bcrypt/
+      - "27017:3000"
     networks:
       - app-network
     command: npm start
@@ -41,7 +38,7 @@ services:
       - POSTGRES_PASSWORD=qoadmin
     healthcheck:
       test: >
-        psql postgresql://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@localhost/$${POSTGRES_DB} \
+        psql postgresql://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@db/$${POSTGRES_DB} \
           --tuples-only \
           --command "select 'postgres is up';" \
         || exit 1
@@ -70,4 +67,6 @@ services:
       - .env
     networks:
       - app-network
+    depends_on:
+      - db
     command: npm run migration:run

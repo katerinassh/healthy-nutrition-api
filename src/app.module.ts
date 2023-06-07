@@ -21,7 +21,7 @@ import { MealModule } from './meal/meal.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      synchronize: true,
+      synchronize: false,
       logging: true,
       logger: 'file',
       entities: [path.join(__dirname, '**/*.entity{.ts,.js}')],
