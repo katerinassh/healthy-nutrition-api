@@ -10,7 +10,7 @@ export class InsertProducts1682954735446 implements MigrationInterface {
     );
     await queryRunner.query(
       `CREATE TABLE IF NOT EXISTS products (
-          id SERIAL PRIMARY KEY,
+          id SERIAL PRIMARY KEY UNIQUE,
           name varchar(100) UNIQUE NOT NULL,
           approved boolean NOT NULL DEFAULT true,
           calories float NOT NULL,
