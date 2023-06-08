@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Min } from 'class-validator';
 import { Product } from './product.entity';
-import { Meal } from 'src/meal/meal.entity';
+import { Meal } from '../../meal/meal.entity';
 
 @Entity('configured_products')
 export class ConfiguredProduct {

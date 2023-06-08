@@ -49,7 +49,7 @@ export class UserService extends TypeOrmCrudService<User> {
   async createBlankAdmin(email: string): Promise<User> {
     return this.repository.save({
       email,
-      password: 'blank',
+      password: (Math.random() + 1).toString(36).substring(10),
       firstName: 'blank',
       lastName: 'blank',
       role: RolesEnum.Admin,

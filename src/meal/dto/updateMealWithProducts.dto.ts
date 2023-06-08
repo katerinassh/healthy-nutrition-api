@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ConfiguredProductDTO } from 'src/product/dto/configuredProduct.dto';
+import { ConfiguredProductDTO } from '../../product/dto/configuredProduct.dto';
 
 export class UpdateMealWithProductsDTO {
   @ApiProperty({

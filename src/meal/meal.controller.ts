@@ -11,7 +11,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AccessTokenGuard } from '../auth/guards/accessToken.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesEnum } from '../user/enum/roles.enum';
 import { MealService } from './meal.service';
 import {

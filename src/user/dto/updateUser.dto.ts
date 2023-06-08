@@ -8,7 +8,7 @@ export class UpdateUserDTO {
     nullable: true,
     type: 'string',
   })
-  firstName: string;
+  firstName?: string;
 
   @IsOptional()
   @ApiPropertyOptional({
@@ -16,7 +16,7 @@ export class UpdateUserDTO {
     nullable: true,
     type: 'string',
   })
-  lastName: string;
+  lastName?: string;
 
   @IsOptional()
   @ApiPropertyOptional({
@@ -24,5 +24,5 @@ export class UpdateUserDTO {
     nullable: true,
     type: 'string',
   })
-  password: string;
+  password?: string;
 }

@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ApiProperty } from '@nestjsx/crud/lib/crud';
 import { IsOptional } from 'class-validator';
-import { User } from 'src/user/user.entity';
+import { User } from '../../user/user.entity';
 import { CategoryEnum } from '../enum/category.enum';
 
 export class CreateProductDTO {
